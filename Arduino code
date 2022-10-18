@@ -1,0 +1,45 @@
+#include <etherShield.h>
+#include <ETHER_28J60.h>
+#define ON      HIGH
+#define OFF     LOW
+#define RELAY1  7
+#define RELAY2 6
+
+static uint8_t mac[6] = {0x54, 0x55, 0x58, 0x10, 0x00, 0x24};  
+static uint8_t ip[4] = {192, 168, 0, 55}; 
+static uint16_t port = 80; 
+
+ETHER_28J60 client;
+
+void setup() {
+client.setup(mac, ip, port);
+pinMode(RELAY1, OUTPUT);
+digitalWrite(RELAY1,HIGH);
+pinMode(RELAY2, OUTPUT);
+digitalWrite(RELAY2,HIGH);
+}
+
+void loop() {
+  char* params;
+  if (params = client.serviceRequest()) {    
+    // custom buttons
+    client.print("<h2>Ethernet Relay Control</h2></br>");
+    client.print("<input type=submit value='Switch1 OFF' style=width:100px;height:45px onClick=location.href='/?sw1=ON'>&nbsp&nbsp&nbsp");
+    client.print("<input type=submit value='Switch1 ON' style=width:100px;height:45px onClick=location.href='/?sw1=OFF'><br/>");
+    client.print("<input type=submit value='Switch2 OFF' style=width:100px;height:45px onClick=location.href='/?sw2=ON'>&nbsp&nbsp&nbsp");
+    client.print("<input type=submit value='Switch2 ON' style=width:100px;height:45px onClick=location.href='/?sw2=OFF'><br/>");     
+    if (strcmp(params, "?sw1=ON") == 0) {
+      digitalWrite(RELAY1, ON);
+    }
+    if (strcmp(params, "?sw1=OFF") == 0) {
+      digitalWrite(RELAY1, OFF);
+    }
+    if (strcmp(params, "?sw2=ON") == 0) {
+      digitalWrite(RELAY2, ON);
+    }
+    if (strcmp(params, "?sw2=OFF") == 0) {
+      digitalWrite(RELAY2, OFF);
+    } 
+    client.respond();
+  }
+}
